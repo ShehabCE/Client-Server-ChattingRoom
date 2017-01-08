@@ -6,6 +6,19 @@ LIST_OF_SOCKETS =[]     #Arrayy of Sockets reached
 RECV_BUFFER = 8192
 PORT = 5555
 
+def broadcast_Message(Server_SOCK, SOCK, BC_Message):
+    for sock in LIST_OF_SOCKETS:
+        #Allow the sender to see the broadcasted message too.
+        if sock != Server_SOCK:
+            try:
+                sock.send(BC_Message)
+            except:
+                #Socket Connection is broken, close it and remove it.
+                sock.close()
+                if sock in LIST_OF_SOCKETS:
+                    LIST_OF_SOCKETS.remove(sock)
+
+
 def chat_manager():
     Server_SOCK = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     Server_SOCK.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -21,10 +34,36 @@ def chat_manager():
         READ, WRITE, ERROR = select.select(LIST_OF_SOCKETS, [], [], 0)
 
         for incoming_SOCK in READ:
-            #New Connection Request Read
+            #New Connection Request from Client
             if incoming_SOCK == Server_SOCK:
                 SOCKfd, addr = Server_SOCK.accept()
                 LIST_OF_SOCKETS.append(SOCKfd)
-                Server_msg = "Client (" + addr + ") connected."
+                Server_msg = "Client [" + addr + "] connected."
                 print(Server_msg)
-                broadcast
+                Server_msg = "[" + addr + "] entered our epic chatting room."
+                broadcast_Message(Server_SOCK, SOCKfd, Server_msg)
+            #New Message from Client
+            else:
+                try:
+                    data = incoming_SOCK.recv(RECV_BUFFER)
+                    if data:
+                        #there is data in the buffer, broadcast it to all active clients.
+                        Server_msg = "["+str(incoming_SOCK.getpeername())+"]: "+data
+                        broadcast_Message(Server_SOCK, incoming_SOCK, Server_msg)
+                    else:
+                        #The socket is broken, remove it.
+                        if incoming_SOCK in LIST_OF_SOCKETS:
+                            LIST_OF_SOCKETS.remove(incoming_SOCK)
+                        #Inform Active Clients that this Client is offline.
+                        Server_msg = "Client["+addr+"] is offline."
+                        broadcast_Message(Server_SOCK, incoming_SOCK, Server_msg)
+
+                except:
+                    Server_msg = "Client["+addr+"] is offline."
+                    broadcast_Message(Server_SOCK, incoming_SOCK, Server_msg)
+                    continue
+    Server_SOCK.close()
+
+
+if __name__ == "__main__":
+    sys.exit(chat_manager())
