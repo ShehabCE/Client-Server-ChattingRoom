@@ -11,7 +11,7 @@ def broadcast_Message(Server_SOCK, SOCK, BC_Message):
         #Allow the sender to see the broadcasted message too.
         if sock != Server_SOCK:
             try:
-                sock.send(BC_Message)
+                sock.send(BC_Message).encode()
             except:
                 #Socket Connection is broken, close it and remove it.
                 sock.close()
@@ -38,14 +38,14 @@ def chat_manager():
             if incoming_SOCK == Server_SOCK:
                 SOCKfd, addr = Server_SOCK.accept()
                 LIST_OF_SOCKETS.append(SOCKfd)
-                Server_msg = "Client [" + addr + "] connected."
+                Server_msg = "Client [" + str(addr) + "] connected."
                 print(Server_msg)
-                Server_msg = "[" + addr + "] entered our epic chatting room."
+                Server_msg = "[" + str(addr) + "] entered our epic chatting room."
                 broadcast_Message(Server_SOCK, SOCKfd, Server_msg)
             #New Message from Client
             else:
                 try:
-                    data = incoming_SOCK.recv(RECV_BUFFER)
+                    data = incoming_SOCK.recv(RECV_BUFFER).decode()
                     if data:
                         #there is data in the buffer, broadcast it to all active clients.
                         Server_msg = "["+str(incoming_SOCK.getpeername())+"]: "+data
@@ -55,11 +55,11 @@ def chat_manager():
                         if incoming_SOCK in LIST_OF_SOCKETS:
                             LIST_OF_SOCKETS.remove(incoming_SOCK)
                         #Inform Active Clients that this Client is offline.
-                        Server_msg = "Client["+addr+"] is offline."
+                        Server_msg = "Client["+str(addr)+"] is offline."
                         broadcast_Message(Server_SOCK, incoming_SOCK, Server_msg)
 
                 except:
-                    Server_msg = "Client["+addr+"] is offline."
+                    Server_msg = "Client["+str(addr)+"] is offline."
                     broadcast_Message(Server_SOCK, incoming_SOCK, Server_msg)
                     continue
     Server_SOCK.close()
