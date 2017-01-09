@@ -2,7 +2,8 @@ import socket, sys, select
 
 # MAX BUFFER SIZE = 8192
 # FIXED PORT FROM SERVER = 5555
-def chatting_client():
+
+def Main():
     Client_Name = input("Name of Chatter: ")
     # Host = input("Name of Host:")  #localhost
     # Port = input("Port:")          #Fixed Port = 5555
@@ -20,7 +21,7 @@ def chatting_client():
         print("Unable to connect to Chatting Server :(")
         sys.exit()
     print("Connected to Chatting Server! You can start sending messages!")
-    sys.stdout.write("[Me] ")
+    sys.stdout.write("[Me]: ")
     sys.stdout.flush()
 
     while True:
@@ -36,9 +37,9 @@ def chatting_client():
                     sys.exit()
                 else:
                     sys.stdout.write(data)
-                    sys.stdout.write("[Me] ")
+                    sys.stdout.write("[Me]: ")
                     sys.stdout.flush()
 
 if __name__ == "__main__":
-    sys.exit(chatting_client())
+    sys.exit(Main())
 
