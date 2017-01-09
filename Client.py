@@ -3,8 +3,10 @@ import socket, sys, select
 # MAX BUFFER SIZE = 8192
 # FIXED PORT FROM SERVER = 5555
 
+### Client Connection not functioning properly. ###
+
 def Main():
-    Client_Name = input("Name of Chatter: ")
+    Client_Name = input("Name of Participant: ")
     # Host = input("Name of Host:")  #localhost
     # Port = input("Port:")          #Fixed Port = 5555
     Host = "localhost"
